@@ -2,6 +2,29 @@
 This project aims to create universal binaries for ioquake3 dedicated server, allowing you to turn any device with a
 general-purpose processor into a Quake 3 Arena dedicated server. 
 
+## Where the binaries at?
+Executable binaries can be grabbed from:
+- [GitLab Package Registry][0]
+- [GitHub Releases][1]
+
+The Docker images are available at:
+- [GitLab Container Registry][2]
+
+The distribution includes *only* the server binary. To obtain the Quake 3 Arena .pk3 files necessary to run the server,
+you must purchase a legitimate copy of Quake 3 Arena. You can do so in places such as:
+- [Steam][5]
+- [GOG][6]
+- [eBay (used physical copy; make sure it's authentic, however)][7]
+- perhaps other videogame retailers
+
+Whatever you do, avoid key resellers. They are more likely to scam you than provide you with a legitimate, working
+copy.
+
+If you happen to own an old copy, make sure it's updated to Point Release 1.32c:
+- [Point Release 1.32][8]
+- [Point Release 1.32c][9]
+
+# Distributions
 ## Docker image
 The image contains a statically-linked version of the ioquake3 dedicated server. The following platforms are supported:
 - x86 (i386) - old PCs
@@ -69,12 +92,12 @@ In this state, the server will not be playable. You need to at least load a map 
 enable bots, you can additionally specify `+set bot_enable 1 +set g_spskill 2 +set bot_minplayers 4` (replace 4 with the
 desired minimum total number of players). Every actual player joining will replace 1 bot, so specifying 4 means that if
 2 players join, only 2 bots will remain. `g_spskill` controls bot difficulty level: 2 is default, 0 is easiest, 5 is
-hardest. Further command and variable documentation can be found [here](http://www.joz3d.net/html/q3console.html).
+hardest. Further command and variable documentation can be found [here][4].
 
 ## MikroTik-compatible container image
 Due to the tiny footprint of this image (generally <32MiB RAM usage), it is possible to host a Quake 3 Arena server on a
 sufficiently powerful Mikrotik router. For more information on how to use containers on RouterOS 7,
-[see RouterOS documentation](https://help.mikrotik.com/docs/display/ROS/Container). It is **strongly recommended** to
+[see RouterOS documentation][3]. It is **strongly recommended** to
 use USB storage, as containers might wear down your devices internal storage very fast.
 
 It should be noted that only ARM- and ARM64-based routers, and CHR instances can run this image, due to architecture
@@ -128,3 +151,20 @@ have to specify those options via `cmd=` parameter to `/container/add` (e.g.
 `cmd="+set bot_enable 1 +set g_spskill 2 +set bot_minplayers 4 +map q3dm7"`). Currently it is not possible to interact
 with stdin of a container running on a Mikrotik, so you should also enable rcon if you want to manage the server without
 restarting it. For more command info, see static binary section.
+
+# So why did I do this?
+Ever had an old computer and nothing to do with it? Well, in my case, the motivator was seeing if my Mikrotik hAP ac²
+router, which has 128MB of RAM, could host a game. But since I was creating a build setup for a rather old CPU
+architecture, why not include other old and/or exotic architectures while at it?
+
+
+[0]: https://github.com/Emzi0767/ioq3-universal/releases
+[1]: https://github.com/Emzi0767/ioq3-universal/releases
+[2]: https://gitlab.emzi0767.dev/Emzi0767/ioq3-universal/container_registry
+[3]: https://help.mikrotik.com/docs/display/ROS/Container
+[4]: http://www.joz3d.net/html/q3console.html
+[5]: https://store.steampowered.com/app/2200/Quake_III_Arena/
+[6]: https://www.gog.com/en/game/quake_iii_arena
+[7]: https://www.ebay.com/sch/i.html?_nkw=quake+3+arena+pc
+[8]: https://www.moddb.com/games/quake-iii-arena/downloads/quake-iii-arena-point-release-132-pc
+[9]: https://www.moddb.com/games/quake-iii-arena/downloads/quake-iii-arena-point-release-132-to-132c-pc
