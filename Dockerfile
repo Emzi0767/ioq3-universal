@@ -29,7 +29,7 @@ COPY ./ /quake/
 RUN export IOQ3BUILD_BIN_CC=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'clang-18' || printf '%s' 'gcc') \
     && export IOQ3BUILD_BIN_LD=$([ "${TARGETARCH}" != 'riscv64' -a "${TARGETARCH}" != 's390x' ] && printf '%s' 'lld' || printf '%s' 'ld') \
     && export IOQ3BUILD_BIN_STRIP=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'llvm18-strip' || printf '%s' 'strip') \
-    && export IOQ3BUILD_ARG_FUSE_LD= $([ "${TARGETARCH}" != 'riscv64' ] && printf '-fuse-ld=%s' "${IOQ3BUILD_BIN_LD}" || printf '')\
+    && export IOQ3BUILD_ARG_FUSE_LD=$([ "${TARGETARCH}" != 'riscv64' ] && printf '-fuse-ld=%s' "${IOQ3BUILD_BIN_LD}" || printf '')\
     && make \
         -j$(nproc --all) \
         CC="${IOQ3BUILD_BIN_CC} -static ${IOQ3BUILD_ARG_FUSE_LD}" \
