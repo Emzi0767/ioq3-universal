@@ -158,7 +158,7 @@ router, which has 128MB of RAM, could host a game. But since I was creating a bu
 architecture, why not include other old and/or exotic architectures while at it?
 
 
-[0]: https://github.com/Emzi0767/ioq3-universal/releases
+[0]: https://gitlab.emzi0767.dev/Emzi0767/ioq3-universal/-/packages
 [1]: https://github.com/Emzi0767/ioq3-universal/releases
 [2]: https://gitlab.emzi0767.dev/Emzi0767/ioq3-universal/container_registry
 [3]: https://help.mikrotik.com/docs/display/ROS/Container
