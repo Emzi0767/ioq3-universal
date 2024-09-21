@@ -13,10 +13,10 @@ RUN apk add --no-cache clang18 llvm18 lld musl-dev git make curl \
     && mkdir -p /quake /quake.tmp/quake /quake.tmp/baseq3 /quake.tmp/home
 
 # Set the workdir
-WORKDIR /quake
+WORKDIR /quake/extern/ioq3
 
 # Copy files
-COPY ./extern/ioq3/ /quake/
+COPY ./ /quake/
 
 # Build the server
 RUN make \
@@ -39,7 +39,7 @@ RUN make \
         USE_MUMBLE=0 \
         USE_VOIP=0 \
         USE_RENDERER_DLOPEN=0 \
-        BR=./build/release \
+        BR=/quake/build/release \
         FULLBINEXT= \
     && curl \
         --fail-with-body \
