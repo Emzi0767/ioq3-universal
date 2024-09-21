@@ -1,4 +1,4 @@
-FROM alpine:3.20.2 AS build
+FROM alpine:3.20.3 AS build
 
 # Install necessary build prerequisites
 RUN apk add --no-cache \
@@ -42,7 +42,7 @@ RUN make \
     && llvm18-strip --strip-all /quake/build/release/ioq3ded
 
 # Build the final container
-FROM alpine:3.20.2 AS final
+FROM alpine:3.20.3 AS final
 
 # Set labels
 LABEL org.opencontainers.image.authors="Emzi0767 <https://gitlab.emzi0767.dev/Emzi0767/ioq3-universal>" \
