@@ -9,8 +9,9 @@ ARG IOQ3DED_VERSION \
     TARGETVARIANT
 
 # Install necessary build prerequisites
-RUN apk add --no-cache \
-        $([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'clang18 llvm18' || printf '%s' 'clang17 llvm17') \
+RUN export IOQ3BUILD_COMPILER=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'clang18 llvm18' || printf '%s' 'clang17 llvm17') \
+    && apk add --no-cache \
+        ${IOQ3BUILD_COMPILER} \
         lld \
         musl-dev \
         git \
@@ -25,10 +26,13 @@ WORKDIR /quake/extern/ioq3
 COPY ./ /quake/
 
 # Build the server
-RUN make \
+RUN export IOQ3BUILD_BIN_CC=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'clang-18' || printf '%s' 'clang-17') \
+    && export IOQ3BUILD_BIN_LD=$([ "${TARGETARCH}" != 'riscv64' -a "${TARGETARCH}" != 's390x' ] && printf '%s' 'lld' || printf '%s' 'ld') \
+    && export IOQ3BUILD_BIN_STRIP=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'llvm18-strip' || printf '%s' 'llvm17-strip') \
+    && make \
         -j$(nproc --all) \
-        CC="$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'clang-18' || printf '%s' 'clang-17') -static -fuse-ld=$([ "${TARGETARCH}" != 'riscv64' -a "${TARGETARCH}" != 's390x' ] && printf '%s' 'lld' || printf '%s' 'ld')" \
-        LD="$([ "${TARGETARCH}" != 'riscv64' -a "${TARGETARCH}" != 's390x' ] && printf '%s' 'lld' || printf '%s' 'ld') -static" \
+        CC="${IOQ3BUILD_BIN_CC} -static -fuse-ld=${IOQ3BUILD_BIN_LD}" \
+        LD="${IOQ3BUILD_BIN_LD} -static" \
         BUILD_STANDALONE=0 \
         BUILD_CLIENT=0 \
         BUILD_SERVER=1 \
@@ -52,7 +56,7 @@ RUN make \
         -H "JOB-TOKEN: ${GL_CI_JOB_TOKEN}" \
         -T /quake/build/release/ioq3ded \
         "${GL_CI_API_V4_URL}/projects/${GL_CI_PROJECT_ID}/packages/generic/ioq3ded-static/${IOQ3DED_VERSION}/ioq3ded-static-${TARGETARCH}${TARGETVARIANT}" \
-    && llvm18-strip --strip-all /quake/build/release/ioq3ded \
+    && ${IOQ3BUILD_BIN_STRIP} --strip-all /quake/build/release/ioq3ded \
     && curl \
         --fail-with-body \
         -H "JOB-TOKEN: ${GL_CI_JOB_TOKEN}" \
