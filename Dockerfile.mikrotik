@@ -1,7 +1,13 @@
 FROM alpine:3.20.2 AS build
 
 # Install necessary build prerequisites
-RUN apk add --no-cache clang18 llvm18 lld musl-dev git make \
+RUN apk add --no-cache \
+        clang18 \
+        llvm18 \
+        lld \
+        musl-dev \
+        git \
+        make \
     && mkdir -p /quake /quake.tmp/quake /quake.tmp/baseq3 /quake.tmp/home
 
 # Set the workdir

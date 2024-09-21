@@ -9,7 +9,13 @@ ARG IOQ3DED_VERSION \
     TARGETVARIANT
 
 # Install necessary build prerequisites
-RUN apk add --no-cache clang18 llvm18 lld musl-dev git make curl \
+RUN apk add --no-cache \
+        $([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'clang18 llvm18' || printf '%s' 'clang17 llvm17') \
+        lld \
+        musl-dev \
+        git \
+        make \
+        curl \
     && mkdir -p /quake /quake.tmp/quake /quake.tmp/baseq3 /quake.tmp/home
 
 # Set the workdir
@@ -21,8 +27,8 @@ COPY ./ /quake/
 # Build the server
 RUN make \
         -j$(nproc --all) \
-        CC="clang-18 -static -fuse-ld=$([ "${TARGETARCH}" != 'riscv64' -a "${TARGETARCH}" != 's390x' ] && printf '%s' 'lld' || printf '%s' 'ld')" \
-        LD="lld -static" \
+        CC="$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'clang-18' || printf '%s' 'clang-17') -static -fuse-ld=$([ "${TARGETARCH}" != 'riscv64' -a "${TARGETARCH}" != 's390x' ] && printf '%s' 'lld' || printf '%s' 'ld')" \
+        LD="$([ "${TARGETARCH}" != 'riscv64' -a "${TARGETARCH}" != 's390x' ] && printf '%s' 'lld' || printf '%s' 'ld') -static" \
         BUILD_STANDALONE=0 \
         BUILD_CLIENT=0 \
         BUILD_SERVER=1 \
