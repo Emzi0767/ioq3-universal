@@ -1,4 +1,4 @@
-FROM alpine:3.20.2 AS build
+FROM alpine:20240807 AS build
 
 # Set up build variables
 ARG IOQ3DED_VERSION \
@@ -9,7 +9,7 @@ ARG IOQ3DED_VERSION \
     TARGETVARIANT
 
 # Install necessary build prerequisites
-RUN export IOQ3BUILD_COMPILER=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'clang18 llvm18' || printf '%s' 'clang16 llvm16') \
+RUN export IOQ3BUILD_COMPILER=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'clang18 llvm18' || printf '%s' 'clang18 llvm18') \
     && apk add --no-cache \
         ${IOQ3BUILD_COMPILER} \
         lld \
@@ -26,9 +26,9 @@ WORKDIR /quake/extern/ioq3
 COPY ./ /quake/
 
 # Build the server
-RUN export IOQ3BUILD_BIN_CC=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'clang-18' || printf '%s' 'clang-16') \
-    && export IOQ3BUILD_BIN_LD=$([ "${TARGETARCH}" != 'riscv64' -a "${TARGETARCH}" != 's390x' ] && printf '%s' 'lld' || printf '%s' 'ld') \
-    && export IOQ3BUILD_BIN_STRIP=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'llvm18-strip' || printf '%s' 'llvm16-strip') \
+RUN export IOQ3BUILD_BIN_CC=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'clang-18' || printf '%s' 'clang-18') \
+    && export IOQ3BUILD_BIN_LD=$([ "${TARGETARCH}" != 'riscv64' -a "${TARGETARCH}" != 's390x' ] && printf '%s' 'lld' || printf '%s' 'lld') \
+    && export IOQ3BUILD_BIN_STRIP=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'llvm18-strip' || printf '%s' 'llvm18-strip') \
     && make \
         -j$(nproc --all) \
         CC="${IOQ3BUILD_BIN_CC} -static -fuse-ld=${IOQ3BUILD_BIN_LD}" \
