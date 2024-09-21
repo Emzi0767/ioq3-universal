@@ -1,0 +1,78 @@
+FROM alpine:3.20.2 AS build
+
+# Install necessary build prerequisites
+RUN apk add --no-cache clang18 llvm18 lld musl-dev git make \
+    && mkdir -p /quake /quake.tmp/quake /quake.tmp/baseq3 /quake.tmp/home
+
+# Set the workdir
+WORKDIR /quake
+
+# Copy files
+COPY ./extern/ioq3/ /quake/
+
+# Build the server
+RUN make \
+        -j$(nproc --all) \
+        CC="clang-18 -static -fuse-ld=lld" \
+        LD="lld -static" \
+        BUILD_STANDALONE=0 \
+        BUILD_CLIENT=0 \
+        BUILD_SERVER=1 \
+        BUILD_GAME_SO=0 \
+        BUILD_GAME_QVM=0 \
+        BUILD_BASEGAME=0 \
+        BUILD_MISSIONPACK=0 \
+        BUILD_RENDERER_OPENGL2=0 \
+        USE_OPENAL=0 \
+        USE_OPENAL_DLOPEN=0 \
+        OSE_CURL_DLOPEN=0 \
+        USE_CODEC_VORBIS=0 \
+        USE_CODEC_OPUS=0 \
+        USE_MUMBLE=0 \
+        USE_VOIP=0 \
+        USE_RENDERER_DLOPEN=0 \
+        BR=./build/release \
+        FULLBINEXT= \
+    && llvm18-strip --strip-all /quake/build/release/ioq3ded
+
+# Build the final container
+FROM alpine:3.20.2 AS final
+
+# Set labels
+LABEL org.opencontainers.image.authors="Emzi0767 <https://gitlab.emzi0767.dev/Emzi0767/ioquake3-docker>" \
+    org.opencontainers.image.url="https://gitlab.emzi0767.dev/Emzi0767/ioquake3-docker" \
+    org.opencontainers.image.source="https://gitlab.emzi0767.dev/Emzi0767/ioquake3-docker" \
+    org.opencontainers.image.title="ioquake3 dedicated server - MikroTik edition"
+
+# Create user
+RUN addgroup -g 666 quake3 \
+    && adduser -S -u 666 -h /home/quake3 -s /sbin/nologin -D -G quake3 quake3
+
+# Create working directory
+COPY --from=build --chown=666:666 /quake.tmp/quake /home/quake3/ioq3
+
+# Set working directory and user
+ENV HOME=/home/quake3
+WORKDIR /home/quake3/ioq3
+USER 666:666
+
+# Copy server binary
+COPY --from=build --chown=666:666 /quake/build/release/ioq3ded /home/quake3/ioq3/ioq3ded
+
+# Prepare server data
+COPY --from=build --chown=666:666 /quake.tmp/baseq3 /home/quake3/ioq3/baseq3
+COPY --from=build --chown=666:666 /quake.tmp/home /home/quake3/.q3a
+
+# Attach a volume for data
+VOLUME [ "/home/quake3/ioq3/baseq3", "/home/quake3/.q3a" ]
+
+# Expose ports
+EXPOSE 27960/udp
+
+# Prepare entrypoint
+ENTRYPOINT [ "/home/quake3/ioq3/ioq3ded", \
+    "+set", "dedicated", "1", \
+    "+set", "sv_allowDownload", "0", \
+    "+set", "com_hunkmegs", "64" \
+]
+CMD [ ]

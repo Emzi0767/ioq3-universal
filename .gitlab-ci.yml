@@ -1,0 +1,55 @@
+image: docker:27.3.1-alpine3.20
+
+default:
+  tags:
+  - docker
+
+variables:
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+  BUILD_ARCHITECTURES: linux/amd64,linux/386,linux/arm64/v8,linux/arm/v7,linux/arm/v6,linux/ppc64le,linux/s390x,linux/riscv64
+  BUILD_ARCHITECTURES_MIKROTIK: linux/amd64,linux/arm64/v8,linux/arm/v7
+
+stages:
+- prepare
+- build
+
+prepare-build:
+  stage: prepare
+  script:
+  - echo "OUTPUT_BUILD_NUMBER=$(printf %05d "${CI_PIPELINE_IID}")" >> build.env
+  - echo "OUTPUT_IMAGE_TAG=$(printf "%s" "${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}" | tr '[:upper:]' '[:lower:]')" >> build.env
+  - echo "OUTPUT_IMAGE_MIKROTIK_TAG=$(printf "%s" "${CI_REGISTRY}/${CI_PROJECT_PATH}/$(printf ${CI_PROJECT_NAME} | sed s/docker/mikrotik/g)" | tr '[:upper:]' '[:lower:]')" >> build.env
+  - echo "OUTPUT_BINARY_VERSION=$(grep '!define VERSION' misc/nsis/ioquake3-q3a.nsi | sed 's/!define VERSION //g;s/"//g')" >> build.env
+  - cat build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+
+build-general:
+  stage: build
+  dependencies:
+  - prepare-build
+  needs:
+  - prepare-build
+  services:
+  - docker:27.3.1-dind-alpine3.20
+  script:
+  - echo "Image ${OUTPUT_IMAGE_TAG}:ci-${OUTPUT_BUILD_NUMBER} ${OUTPUT_IMAGE_TAG}:latest"
+  - docker login -u ${CI_REGISTRY_USER} -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+  - docker buildx create --use
+  - docker buildx build -f Dockerfile --provenance false --no-cache --tag "${OUTPUT_IMAGE_TAG}:ci-${OUTPUT_BUILD_NUMBER}" --tag "${OUTPUT_IMAGE_TAG}:latest" --platform="${BUILD_ARCHITECTURES}" --build-arg IOQ3DED_VERSION="${OUTPUT_BINARY_VERSION}-ci-${OUTPUT_BUILD_NUMBER}" --build-arg GL_CI_JOB_TOKEN="${CI_JOB_TOKEN}" --build-arg GL_CI_API_V4_URL="${CI_API_V4_URL}" --build-arg GL_CI_PROJECT_ID="${CI_PROJECT_ID}" --push --pull .
+
+build-mikrotik:
+  stage: build
+  dependencies:
+  - prepare-build
+  needs:
+  - prepare-build
+  services:
+  - docker:27.3.1-dind-alpine3.20
+  script:
+  - echo "Image ${OUTPUT_IMAGE_MIKROTIK_TAG}:ci-${OUTPUT_BUILD_NUMBER} ${OUTPUT_IMAGE_MIKROTIK_TAG}:latest"
+  - docker login -u ${CI_REGISTRY_USER} -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+  - docker buildx create --use
+  - docker buildx build -f Dockerfile.mikrotik --provenance false --no-cache --tag "${OUTPUT_IMAGE_MIKROTIK_TAG}:ci-${OUTPUT_BUILD_NUMBER}" --tag "${OUTPUT_IMAGE_MIKROTIK_TAG}:latest" --platform="${BUILD_ARCHITECTURES_MIKROTIK}" --push --pull .
