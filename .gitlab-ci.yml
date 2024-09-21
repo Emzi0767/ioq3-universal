@@ -5,6 +5,7 @@ default:
   - docker
 
 variables:
+  GIT_SUBMODULE_STRATEGY: recursive
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
   BUILD_ARCHITECTURES: linux/amd64,linux/386,linux/arm64/v8,linux/arm/v7,linux/arm/v6,linux/ppc64le,linux/s390x,linux/riscv64
@@ -19,7 +20,7 @@ prepare-build:
   script:
   - echo "OUTPUT_BUILD_NUMBER=$(printf %05d "${CI_PIPELINE_IID}")" >> build.env
   - echo "OUTPUT_IMAGE_TAG=$(printf "%s" "${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}" | tr '[:upper:]' '[:lower:]')" >> build.env
-  - echo "OUTPUT_IMAGE_MIKROTIK_TAG=$(printf "%s" "${CI_REGISTRY}/${CI_PROJECT_PATH}/$(printf ${CI_PROJECT_NAME} | sed s/docker/mikrotik/g)" | tr '[:upper:]' '[:lower:]')" >> build.env
+  - echo "OUTPUT_IMAGE_MIKROTIK_TAG=$(printf "%s" "${CI_REGISTRY}/${CI_PROJECT_PATH}/$(printf ${CI_PROJECT_NAME} | sed s/universal/mikrotik/g)" | tr '[:upper:]' '[:lower:]')" >> build.env
   - echo "OUTPUT_BINARY_VERSION=$(grep '!define VERSION' misc/nsis/ioquake3-q3a.nsi | sed 's/!define VERSION //g;s/"//g')" >> build.env
   - cat build.env
   artifacts:

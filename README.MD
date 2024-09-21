@@ -42,7 +42,7 @@ the target platform. If you have any requests, let me know via issues, or make a
 The image is distroless, and contains only the statically-linked binary of the dedicated server. As such, no shell is
 available inside.
 
-The image tag is: `gl-registry.emzi0767.dev/emzi0767/ioquake3-docker/ioquake3-docker:latest`
+The image tag is: `gl-registry.emzi0767.dev/emzi0767/ioq3-universal/ioq3-universal:latest`
 
 Image requires having access to original `pak*.pk3` files from Quake 3 Arena 1.32 point release. The directory
 containing them will have to be mounted to the container at `/quake/baseq3`. You will also have to create a writable
@@ -58,7 +58,7 @@ docker run -it --read-only \
   --mount type=bind,src=./home,dst=/quake/home \
   -p 27960:27960/udp \
   --name=quake3 \
-  gl-registry.emzi0767.dev/emzi0767/ioquake3-docker/ioquake3-docker:latest
+  gl-registry.emzi0767.dev/emzi0767/ioq3-universal/ioq3-universal:latest
 ```
 
 You will need to make sure that UDP port 27960 is accessible for both incoming and outgoing traffic on the host.
@@ -106,7 +106,7 @@ support. To find out which architecture your router is based on, log in via WinB
 
 Because MikroTik's container implementation doesn't handle distroless containers at all, a special Alpine Linux-based
 image set was prepared for this purpose, under the tag of
-`gl-registry.emzi0767.dev/emzi0767/ioquake3-docker/ioquake3-mikrotik:latest`.
+`gl-registry.emzi0767.dev/emzi0767/ioq3-universal/ioq3-mikrotik:latest`.
 
 First step is preparing mounts. You will need 2 of them. In CLI, these can be set up via:
 
@@ -118,14 +118,14 @@ add name=quake3-home dst=/home/quake3/.q3a src=/local/path/to/quake-home
 
 Next you will have to import the image to the router. On a PC with docker, do the following, depending on router's
 architecture:
-- CHR (x64): `docker pull --platform=linux/amd64 gl-registry.emzi0767.dev/emzi0767/ioquake3-docker/ioquake3-mikrotik:latest`
-- ARM: `docker pull --platform=linux/arm/v7 gl-registry.emzi0767.dev/emzi0767/ioquake3-docker/ioquake3-mikrotik:latest`
-- ARM64/CHR (AMPERE): `docker pull --platform=linux/arm64/v8 gl-registry.emzi0767.dev/emzi0767/ioquake3-docker/ioquake3-mikrotik:latest`
+- CHR (x64): `docker pull --platform=linux/amd64 gl-registry.emzi0767.dev/emzi0767/ioq3-universal/ioq3-mikrotik:latest`
+- ARM: `docker pull --platform=linux/arm/v7 gl-registry.emzi0767.dev/emzi0767/ioq3-universal/ioq3-mikrotik:latest`
+- ARM64/CHR (AMPERE): `docker pull --platform=linux/arm64/v8 gl-registry.emzi0767.dev/emzi0767/ioq3-universal/ioq3-mikrotik:latest`
 
 In all below commands you have substitute provided paths and addresses with ones appropriate to your environment.
 
 Next step is exporting the image:
-`docker save gl-registry.emzi0767.dev/emzi0767/ioquake3-docker/ioquake3-mikrotik:latest -o quake3.tar`. You will have to
+`docker save gl-registry.emzi0767.dev/emzi0767/ioq3-universal/ioq3-mikrotik:latest -o quake3.tar`. You will have to
 transfer this file to the router. The easiest method is SCP, if you have FTP set up:
 `scp quake3.tar admin@192.168.88.1:/path/to/images/quake3.tar`.
 

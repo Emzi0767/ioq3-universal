@@ -57,9 +57,9 @@ RUN make \
 FROM scratch AS final
 
 # Set labels
-LABEL org.opencontainers.image.authors="Emzi0767 <https://gitlab.emzi0767.dev/Emzi0767/ioquake3-docker>" \
-    org.opencontainers.image.url="https://gitlab.emzi0767.dev/Emzi0767/ioquake3-docker" \
-    org.opencontainers.image.source="https://gitlab.emzi0767.dev/Emzi0767/ioquake3-docker" \
+LABEL org.opencontainers.image.authors="Emzi0767 <https://gitlab.emzi0767.dev/Emzi0767/ioq3-universal>" \
+    org.opencontainers.image.url="https://gitlab.emzi0767.dev/Emzi0767/ioq3-universal" \
+    org.opencontainers.image.source="https://gitlab.emzi0767.dev/Emzi0767/ioq3-universal" \
     org.opencontainers.image.title="ioquake3 dedicated server"
 
 # Create working directory
