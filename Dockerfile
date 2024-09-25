@@ -9,7 +9,7 @@ ARG IOQ3DED_VERSION \
     TARGETVARIANT
 
 # Install necessary build prerequisites
-RUN export IOQ3BUILD_COMPILER=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'clang18 llvm18' || printf '%s' 'gcc binutils') \
+RUN export IOQ3BUILD_COMPILER='clang18 llvm18' \
     && apk add --no-cache \
         ${IOQ3BUILD_COMPILER} \
         lld \
@@ -26,10 +26,10 @@ WORKDIR /quake/extern/ioq3
 COPY ./ /quake/
 
 # Build the server
-RUN export IOQ3BUILD_BIN_CC=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'clang-18' || printf '%s' 'gcc') \
+RUN export IOQ3BUILD_BIN_CC='clang-18' \
     && export IOQ3BUILD_BIN_LD=$([ "${TARGETARCH}" != 'riscv64' -a "${TARGETARCH}" != 's390x' ] && printf '%s' 'lld' || printf '%s' 'ld') \
-    && export IOQ3BUILD_BIN_STRIP=$([ "${TARGETARCH}" != 'riscv64' ] && printf '%s' 'llvm18-strip' || printf '%s' 'strip') \
-    && export IOQ3BUILD_ARG_FUSE_LD=$([ "${TARGETARCH}" != 'riscv64' ] && printf '-fuse-ld=%s' "${IOQ3BUILD_BIN_LD}" || printf '')\
+    && export IOQ3BUILD_BIN_STRIP='llvm18-strip' \
+    && export IOQ3BUILD_ARG_FUSE_LD=$(printf '-fuse-ld=%s' "${IOQ3BUILD_BIN_LD}")\
     && make \
         -j$(nproc --all) \
         CC="${IOQ3BUILD_BIN_CC} -static ${IOQ3BUILD_ARG_FUSE_LD}" \
