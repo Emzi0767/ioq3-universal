@@ -10,7 +10,8 @@ variables:
   DOCKER_TLS_CERTDIR: ""
   BUILD_ARCHITECTURES: linux/amd64,linux/386,linux/arm64/v8,linux/arm/v7,linux/arm/v6,linux/ppc64le,linux/s390x,linux/riscv64
   BUILD_ARCHITECTURES_MIKROTIK: linux/amd64,linux/arm64/v8,linux/arm/v7
-  NDK_ZIP_FILE: android-ndk-r27b-linux.zip
+  NDK_BASE: android-ndk-r27b
+  NDK_ZIP_FILE: ${NDK_BASE}-linux.zip
   NDK_ZIP_URL: https://dl.google.com/android/repository/
 
 stages:
@@ -67,11 +68,11 @@ build-android:
   needs:
   - prepare-build
   script:
-  - mkdir -p /ndk /build /build/armv7a /build/aarch64
-  - apt-get update && apt-get install -y wget unzip
+  - mkdir -p /ndk /build
+  - apt-get update && apt-get install -y wget unzip make build-essential
   - wget -O "/tmp/${NDK_ZIP_FILE}" "${NDK_ZIP_URL}${NDK_ZIP_FILE}"
   - unzip -d /ndk "/tmp/${NDK_ZIP_FILE}"
-  - export NDK_BIN_BASE="/ndk/android-ndk-r27b/toolchains/llvm/prebuilt/linux-x86_64/bin"
+  - export NDK_BIN_BASE="/ndk/${NDK_BASE}/toolchains/llvm/prebuilt/linux-x86_64/bin"
   - export PATH="${NDK_BIN_BASE}:${PATH}"
   - export CC32="${NDK_BIN_BASE}/armv7a-linux-androideabi24-clang -fuse-ld=lld"
   - export CC64="${NDK_BIN_BASE}/aarch64-linux-android24-clang -fuse-ld=lld"
