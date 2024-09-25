@@ -10,6 +10,8 @@ variables:
   DOCKER_TLS_CERTDIR: ""
   BUILD_ARCHITECTURES: linux/amd64,linux/386,linux/arm64/v8,linux/arm/v7,linux/arm/v6,linux/ppc64le,linux/s390x,linux/riscv64
   BUILD_ARCHITECTURES_MIKROTIK: linux/amd64,linux/arm64/v8,linux/arm/v7
+  NDK_ZIP_FILE: android-ndk-r27b-linux.zip
+  NDK_ZIP_URL: https://dl.google.com/android/repository/
 
 stages:
 - prepare
@@ -54,3 +56,190 @@ build-mikrotik:
   - docker login -u ${CI_REGISTRY_USER} -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
   - docker buildx create --use
   - docker buildx build -f Dockerfile.mikrotik --provenance false --no-cache --tag "${OUTPUT_IMAGE_MIKROTIK_TAG}:ci-${OUTPUT_BUILD_NUMBER}" --tag "${OUTPUT_IMAGE_MIKROTIK_TAG}:latest" --platform="${BUILD_ARCHITECTURES_MIKROTIK}" --push --pull .
+
+build-android:
+  image: debian:12.7-slim
+  stage: build
+  tags:
+  - amd64
+  dependencies:
+  - prepare-build
+  needs:
+  - prepare-build
+  script:
+  - mkdir -p /ndk /build /build/armv7a /build/aarch64
+  - apt-get update && apt-get install -y wget unzip
+  - wget -O "/tmp/${NDK_ZIP_FILE}" "${NDK_ZIP_URL}${NDK_ZIP_FILE}"
+  - unzip -d /ndk "/tmp/${NDK_ZIP_FILE}"
+  - export NDK_BIN_BASE="/ndk/android-ndk-r27b/toolchains/llvm/prebuilt/linux-x86_64/bin"
+  - export PATH="${NDK_BIN_BASE}:${PATH}"
+  - export CC32="${NDK_BIN_BASE}/armv7a-linux-androideabi24-clang -fuse-ld=lld"
+  - export CC64="${NDK_BIN_BASE}/aarch64-linux-android24-clang -fuse-ld=lld"
+  - export CCX86="${NDK_BIN_BASE}/i686-linux-android24-clang -fuse-ld=lld"
+  - export CCX64="${NDK_BIN_BASE}/x86_64-linux-android24-clang -fuse-ld=lld"
+  - export CCRV64="${NDK_BIN_BASE}/riscv64-linux-android35-clang -fuse-ld=lld"
+  - export AR="${NDK_BIN_BASE}/llvm-ar"
+  - export LD="${NDK_BIN_BASE}/lld"
+  - export STRIP="${NDK_BIN_BASE}/llvm-strip"
+  - export CFLAGS="-fPIE -fPIC"
+  - export LDFLAGS="-pie"
+  - >-
+    make -j$(nproc --all)
+    CC="${CC32}"
+    LD="${LD}"
+    AR="${AR}"
+    STRIP="${STRIP}"
+    CFLAGS="${CFLAGS}"
+    LDFLAGS="${LDFLAGS}"
+    COMPILE_ARCH=arm
+    BUILD_STANDALONE=0
+    BUILD_CLIENT=0
+    BUILD_SERVER=1
+    BUILD_GAME_SO=0
+    BUILD_GAME_QVM=0
+    BUILD_BASEGAME=0
+    BUILD_MISSIONPACK=0
+    BUILD_RENDERER_OPENGL2=0
+    USE_OPENAL=0
+    USE_OPENAL_DLOPEN=0
+    USE_CURL_DLOPEN=0
+    USE_CODEC_VORBIS=0
+    USE_CODEC_OPUS=0
+    USE_MUMBLE=0
+    USE_VOIP=0
+    USE_RENDERER_DLOPEN=0
+    BR=/build/armv7a
+    FULLBINEXT=
+  - >-
+    make -j$(nproc --all)
+    CC="${CC64}"
+    LD="${LD}"
+    AR="${AR}"
+    STRIP="${STRIP}"
+    CFLAGS="${CFLAGS}"
+    LDFLAGS="${LDFLAGS}"
+    COMPILE_ARCH=arm64
+    BUILD_STANDALONE=0
+    BUILD_CLIENT=0
+    BUILD_SERVER=1
+    BUILD_GAME_SO=0
+    BUILD_GAME_QVM=0
+    BUILD_BASEGAME=0
+    BUILD_MISSIONPACK=0
+    BUILD_RENDERER_OPENGL2=0
+    USE_OPENAL=0
+    USE_OPENAL_DLOPEN=0
+    USE_CURL_DLOPEN=0
+    USE_CODEC_VORBIS=0
+    USE_CODEC_OPUS=0
+    USE_MUMBLE=0
+    USE_VOIP=0
+    USE_RENDERER_DLOPEN=0
+    BR=/build/aarch64
+    FULLBINEXT=
+  - >-
+    make -j$(nproc --all)
+    CC="${CCX86}"
+    LD="${LD}"
+    AR="${AR}"
+    STRIP="${STRIP}"
+    CFLAGS="${CFLAGS}"
+    LDFLAGS="${LDFLAGS}"
+    COMPILE_ARCH=x86
+    BUILD_STANDALONE=0
+    BUILD_CLIENT=0
+    BUILD_SERVER=1
+    BUILD_GAME_SO=0
+    BUILD_GAME_QVM=0
+    BUILD_BASEGAME=0
+    BUILD_MISSIONPACK=0
+    BUILD_RENDERER_OPENGL2=0
+    USE_OPENAL=0
+    USE_OPENAL_DLOPEN=0
+    USE_CURL_DLOPEN=0
+    USE_CODEC_VORBIS=0
+    USE_CODEC_OPUS=0
+    USE_MUMBLE=0
+    USE_VOIP=0
+    USE_RENDERER_DLOPEN=0
+    BR=/build/x86
+    FULLBINEXT=
+  - >-
+    make -j$(nproc --all)
+    CC="${CCX64}"
+    LD="${LD}"
+    AR="${AR}"
+    STRIP="${STRIP}"
+    CFLAGS="${CFLAGS}"
+    LDFLAGS="${LDFLAGS}"
+    COMPILE_ARCH=x86_64
+    BUILD_STANDALONE=0
+    BUILD_CLIENT=0
+    BUILD_SERVER=1
+    BUILD_GAME_SO=0
+    BUILD_GAME_QVM=0
+    BUILD_BASEGAME=0
+    BUILD_MISSIONPACK=0
+    BUILD_RENDERER_OPENGL2=0
+    USE_OPENAL=0
+    USE_OPENAL_DLOPEN=0
+    USE_CURL_DLOPEN=0
+    USE_CODEC_VORBIS=0
+    USE_CODEC_OPUS=0
+    USE_MUMBLE=0
+    USE_VOIP=0
+    USE_RENDERER_DLOPEN=0
+    BR=/build/x64
+    FULLBINEXT=
+  - >-
+    make -j$(nproc --all)
+    CC="${CCRV64}"
+    LD="${LD}"
+    AR="${AR}"
+    STRIP="${STRIP}"
+    CFLAGS="${CFLAGS}"
+    LDFLAGS="${LDFLAGS}"
+    COMPILE_ARCH=riscv64
+    BUILD_STANDALONE=0
+    BUILD_CLIENT=0
+    BUILD_SERVER=1
+    BUILD_GAME_SO=0
+    BUILD_GAME_QVM=0
+    BUILD_BASEGAME=0
+    BUILD_MISSIONPACK=0
+    BUILD_RENDERER_OPENGL2=0
+    USE_OPENAL=0
+    USE_OPENAL_DLOPEN=0
+    USE_CURL_DLOPEN=0
+    USE_CODEC_VORBIS=0
+    USE_CODEC_OPUS=0
+    USE_MUMBLE=0
+    USE_VOIP=0
+    USE_RENDERER_DLOPEN=0
+    BR=/build/riscv64
+    FULLBINEXT=
+  - >-
+    curl --fail-with-body
+    -H "JOB-TOKEN: ${GL_CI_JOB_TOKEN}"
+    -T /build/armv7a/ioq3ded
+    "${GL_CI_API_V4_URL}/projects/${GL_CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-armv7"
+  - >-
+    curl --fail-with-body
+    -H "JOB-TOKEN: ${GL_CI_JOB_TOKEN}"
+    -T /build/aarch64/ioq3ded
+    "${GL_CI_API_V4_URL}/projects/${GL_CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-arm64"
+  - >-
+    curl --fail-with-body
+    -H "JOB-TOKEN: ${GL_CI_JOB_TOKEN}"
+    -T /build/x86/ioq3ded
+    "${GL_CI_API_V4_URL}/projects/${GL_CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-x86"
+  - >-
+    curl --fail-with-body
+    -H "JOB-TOKEN: ${GL_CI_JOB_TOKEN}"
+    -T /build/x64/ioq3ded
+    "${GL_CI_API_V4_URL}/projects/${GL_CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-x64"
+  - >-
+    curl --fail-with-body
+    -H "JOB-TOKEN: ${GL_CI_JOB_TOKEN}"
+    -T /build/riscv64/ioq3ded
+    "${GL_CI_API_V4_URL}/projects/${GL_CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-riscv64"

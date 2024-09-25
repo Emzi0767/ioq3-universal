@@ -31,7 +31,7 @@ RUN make \
         BUILD_RENDERER_OPENGL2=0 \
         USE_OPENAL=0 \
         USE_OPENAL_DLOPEN=0 \
-        OSE_CURL_DLOPEN=0 \
+        USE_CURL_DLOPEN=0 \
         USE_CODEC_VORBIS=0 \
         USE_CODEC_OPUS=0 \
         USE_MUMBLE=0 \

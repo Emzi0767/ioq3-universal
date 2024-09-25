@@ -72,31 +72,9 @@ You can also use a specific version instead of `latest`, these are available und
 Note that by default the server will not be playable, you need to at least load a map. For details, see section below.
 In case of inputting commands to the server's console, you must omit `+set`.
 
-## Static binaries
-In addition to Docker images, the CI process now spits out static binaries (found under Deploy > Package Registry) for
-all supported architecture. These binaries are statically-linked against musl libc using Clang, LLVM, and LLD. These
-binaries are standalone insofar as additional binaries and libraries go. The `.pk3` files required for the server to run
-must still be supplied separately.
-
-The binaries come in 2 flavours, stripped and non-stripped. The former have all unnecessary data (such as debugging
-information) removed, making the binaries smaller. There is, however, no performance impact to this.
-
-To run the server, create a directory named `baseq3` where the server binary is created, and put your `.pk3` files in
-it. Create a folder for the server to store its configuration in, and make sure the user which the server will run as
-can write to it (typically you want permissions to be 700 or 755, with owner being the user). To run the server, you
-need to specify several arguments on the command line:
-
-`./ioq3ded-static +set dedicated 1 +set sv_allowDownload 0 +set com_hunkmegs 64 +set com_homepath /path/to/the/config/dir`
-
-In this state, the server will not be playable. You need to at least load a map (`+set map q3dm7`). If you wish to
-enable bots, you can additionally specify `+set bot_enable 1 +set g_spskill 2 +set bot_minplayers 4` (replace 4 with the
-desired minimum total number of players). Every actual player joining will replace 1 bot, so specifying 4 means that if
-2 players join, only 2 bots will remain. `g_spskill` controls bot difficulty level: 2 is default, 0 is easiest, 5 is
-hardest. Further command and variable documentation can be found [here][4].
-
 ## MikroTik-compatible container image
 Due to the tiny footprint of this image (generally <32MiB RAM usage), it is possible to host a Quake 3 Arena server on a
-sufficiently powerful Mikrotik router. For more information on how to use containers on RouterOS 7,
+sufficiently powerful MikroTik router. For more information on how to use containers on RouterOS 7,
 [see RouterOS documentation][3]. It is **strongly recommended** to
 use USB storage, as containers might wear down your devices internal storage very fast.
 
@@ -149,11 +127,51 @@ it should work this time. Note that this will not do much at this stage. To actu
 bots, etc., you will need to find a way to edit configs stored in the `quake3-home` mount for the server, or you will
 have to specify those options via `cmd=` parameter to `/container/add` (e.g.
 `cmd="+set bot_enable 1 +set g_spskill 2 +set bot_minplayers 4 +map q3dm7"`). Currently it is not possible to interact
-with stdin of a container running on a Mikrotik, so you should also enable rcon if you want to manage the server without
+with stdin of a container running on a MikroTik, so you should also enable rcon if you want to manage the server without
 restarting it. For more command info, see static binary section.
 
+## Static binaries
+In addition to Docker images, the CI process now spits out static binaries (found under Deploy > Package Registry) for
+all supported architecture. These binaries are statically-linked against musl libc using Clang, LLVM, and LLD. These
+binaries are standalone insofar as additional binaries and libraries go. The `.pk3` files required for the server to run
+must still be supplied separately.
+
+The binaries come in 2 flavours, stripped and non-stripped. The former have all unnecessary data (such as debugging
+information) removed, making the binaries smaller. There is, however, no performance impact to this.
+
+To run the server, create a directory named `baseq3` where the server binary is created, and put your `.pk3` files in
+it. Create a folder for the server to store its configuration in, and make sure the user which the server will run as
+can write to it (typically you want permissions to be 700 or 755, with owner being the user). To run the server, you
+need to specify several arguments on the command line:
+
+`./ioq3ded-static +set dedicated 1 +set sv_allowDownload 0 +set com_hunkmegs 64 +set com_homepath /path/to/the/config/dir`
+
+In this state, the server will not be playable. You need to at least load a map (`+set map q3dm7`). If you wish to
+enable bots, you can additionally specify `+set bot_enable 1 +set g_spskill 2 +set bot_minplayers 4` (replace 4 with the
+desired minimum total number of players). Every actual player joining will replace 1 bot, so specifying 4 means that if
+2 players join, only 2 bots will remain. `g_spskill` controls bot difficulty level: 2 is default, 0 is easiest, 5 is
+hardest. Further command and variable documentation can be found [here][4].
+
+## Android binaries
+While the static binaries can be ran under Android, it requires jumping through some extra hoops. Google no longer
+allows distributing apps with this functionality via the Play Store. This means that you cannot run the static server
+binary under e.g. Termux, if it was installed from the Play Store. It can still be done via apps that were compiled
+with such functionality, such as Termux installed from GitHub or F-Droid. But not everyone wishes to put in that extra
+effort, and therefore I opted to provide a solution in the same spirit as the MikroTik container. These binaries are
+compiled against Bionic libc, using Android NDK. The binaries require API level 24 (Android 7.0).
+
+I currently provide binaries for the following architectures:
+- ARMv7 - old smartphones and tablets, also some very low-end devices
+- AArch64 (ARM64, ARMv8) - modern smartphones and tablets
+- x86 (i686) - some old smartphones and tablets
+- x86-64 (AMD64) - mostly emulators
+- RISC-V64 (riscv64; requires API level 35 / Android 15) - prototypes, probably
+
+These binaries can be ran under terminal emulator apps installed from the Play Store as well as any other source.
+To install and run the server, follow the same instructions as for the static binaries.
+
 # So why did I do this?
-Ever had an old computer and nothing to do with it? Well, in my case, the motivator was seeing if my Mikrotik hAP ac²
+Ever had an old computer and nothing to do with it? Well, in my case, the motivator was seeing if my MikroTik hAP ac²
 router, which has 128MB of RAM, could host a game. But since I was creating a build setup for a rather old CPU
 architecture, why not include other old and/or exotic architectures while at it?
 
