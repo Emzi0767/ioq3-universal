@@ -83,6 +83,7 @@ build-android:
   - export STRIP="${NDK_BIN_BASE}/llvm-strip"
   - export CFLAGS="-fPIE -fPIC"
   - export LDFLAGS="-pie"
+  - cd extern/ioq3
   - >-
     make -j$(nproc --all)
     CC="${CC32}"
