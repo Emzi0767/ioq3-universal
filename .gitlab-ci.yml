@@ -223,26 +223,26 @@ build-android:
     FULLBINEXT=
   - >-
     curl --fail-with-body
-    -H "JOB-TOKEN: ${GL_CI_JOB_TOKEN}"
+    -H "JOB-TOKEN: ${CI_JOB_TOKEN}"
     -T /build/armv7a/ioq3ded
-    "${GL_CI_API_V4_URL}/projects/${GL_CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-armv7"
+    "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-armv7"
   - >-
     curl --fail-with-body
-    -H "JOB-TOKEN: ${GL_CI_JOB_TOKEN}"
+    -H "JOB-TOKEN: ${CI_JOB_TOKEN}"
     -T /build/aarch64/ioq3ded
-    "${GL_CI_API_V4_URL}/projects/${GL_CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-arm64"
+    "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-arm64"
   - >-
     curl --fail-with-body
-    -H "JOB-TOKEN: ${GL_CI_JOB_TOKEN}"
+    -H "JOB-TOKEN: ${CI_JOB_TOKEN}"
     -T /build/x86/ioq3ded
-    "${GL_CI_API_V4_URL}/projects/${GL_CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-x86"
+    "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-x86"
   - >-
     curl --fail-with-body
-    -H "JOB-TOKEN: ${GL_CI_JOB_TOKEN}"
+    -H "JOB-TOKEN: ${CI_JOB_TOKEN}"
     -T /build/x64/ioq3ded
-    "${GL_CI_API_V4_URL}/projects/${GL_CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-x64"
+    "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-x64"
   - >-
     curl --fail-with-body
     -H "JOB-TOKEN: ${GL_CI_JOB_TOKEN}"
     -T /build/riscv64/ioq3ded
-    "${GL_CI_API_V4_URL}/projects/${GL_CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-riscv64"
+    "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-riscv64"
