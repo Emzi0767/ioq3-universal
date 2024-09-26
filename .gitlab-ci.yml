@@ -243,6 +243,6 @@ build-android:
     "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-x64"
   - >-
     curl --fail-with-body
-    -H "JOB-TOKEN: ${GL_CI_JOB_TOKEN}"
+    -H "JOB-TOKEN: ${CI_JOB_TOKEN}"
     -T /build/riscv64/ioq3ded
     "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/ioq3ded-android/${IOQ3DED_VERSION}/ioq3ded-riscv64"
